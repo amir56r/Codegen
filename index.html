@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Code Generator</title>
+    <style>
+        :root {
+            --primary-color: #1a73e8;
+            --secondary-color: #4285f4;
+            --light-color: #e8f0fe;
+            --dark-color: #0d47a1;
+            --text-color: #333;
+            --white: #ffffff;
+            --success-color: #34a853;
+            --error-color: #ea4335;
+            --nav-bg: #ffffff;
+            --nav-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: #f5f5f5;
+        }
+        
+        /* Navigation Styles */
+        .navbar {
+            background-color: var(--nav-bg);
+            box-shadow: var(--nav-shadow);
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+        
+        .logo-img {
+            height: 40px;
+            margin-right: 10px;
+        }
+        
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 0;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 25px;
+            list-style: none;
+        }
+        
+        .nav-link {
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 600;
+            font-size: 1rem;
+            transition: color 0.3s;
+            padding: 5px 0;
+            position: relative;
+        }
+        
+        .nav-link:hover {
+            color: var(--primary-color);
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--primary-color);
+            transition: width 0.3s;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .nav-link.active {
+            color: var(--primary-color);
+        }
+        
+        .nav-link.active::after {
+            width: 100%;
+        }
+        
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--primary-color);
+            padding: 5px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        
+        /* Page Styles */
+        .page {
+            display: none;
+        }
+        
+        .page.active {
+            display: block;
+        }
+        
+        .hero {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .hero h1 {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            color: #666;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        /* Generator Page Styles */
+        .generator-box {
+            background-color: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        textarea, select, input[type="text"], input[type="email"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        textarea:focus, select:focus, input[type="text"]:focus, input[type="email"]:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            background-color: var(--primary-color);
+            color: var(--white);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        
+        button:hover {
+            background-color: var(--dark-color);
+            transform: translateY(-2px);
+        }
+        
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        button.secondary {
+            background-color: #f1f1f1;
+            color: var(--text-color);
+        }
+        
+        button.secondary:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .result-box {
+            background-color: var(--light-color);
+            border-left: 4px solid var(--primary-color);
+            border-radius: 6px;
+            padding: 20px;
+            margin-top: 20px;
+            position: relative;
+        }
+        
+        .result-box h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+        }
+        
+        .result-content {
+            white-space: pre-wrap;
+            font-family: 'Courier New', Courier, monospace;
+            background-color: var(--white);
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary-color);
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 30px 20px;
+            color: #666;
+            font-size: 0.9rem;
+            background-color: var(--white);
+            border-top: 1px solid #eee;
+        }
+        
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        
+        .copy-btn:hover {
+            background-color: var(--dark-color);
+        }
+        
+        .copy-btn.copied {
+            background-color: var(--success-color);
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 5px;
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1000;
+        }
+        
+        .notification.show {
+            opacity: 1;
+        }
+        
+        .notification.success {
+            background-color: var(--success-color);
+        }
+        
+        .notification.error {
+            background-color: var(--error-color);
+        }
+        
+        .examples {
+            margin-top: 30px;
+        }
+        
+        .examples h3 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        
+        .example-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .example-btn {
+            background-color: #e8f0fe;
+            color: var(--primary-color);
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .example-btn:hover {
+            background-color: #d2e3fc;
+        }
+        
+        .history-panel {
+            margin-top: 30px;
+            display: none;
+        }
+        
+        .history-item {
+            background-color: #f9f9f9;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .history-item:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .history-item .prompt {
+            font-weight: 600;
+        }
+        
+        .history-item .date {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        .clear-history {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: var(--error-color);
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        
+        .toggle-history {
+            margin-top: 20px;
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .settings-panel {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            display: none;
+        }
+        
+        .settings-panel label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+        
+        .settings-panel input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        
+        /* Contact Page Styles */
+        .contact-form {
+            background-color: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .contact-form .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .contact-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-top: 40px;
+        }
+        
+        .contact-card {
+            flex: 1;
+            min-width: 250px;
+            background-color: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        
+        .contact-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+        
+        .contact-card p {
+            margin-bottom: 10px;
+        }
+        
+        .contact-card i {
+            color: var(--primary-color);
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* Features Page Styles */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .feature-card {
+            background-color: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            transition: transform 0.3s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .feature-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+        
+        .feature-icon {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+        
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                position: fixed;
+                top: 70px;
+                left: 0;
+                right: 0;
+                background-color: var(--nav-bg);
+                flex-direction: column;
+                padding: 20px;
+                box-shadow: var(--nav-shadow);
+                z-index: 999;
+            }
+            
+            .nav-links.active {
+                display: flex;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+            }
+            
+            .contact-info {
+                flex-direction: column;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo" data-page="generator">
+                <svg class="logo.png" viewBox="0 0 24 24" xmlns="logo.png">
+                    <path fill="#4285F4" d="M12 0a12 12 0 1 0 0 24 12 12 0 0 0 0-24zm-1 17.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm3.1-6.4l-.9.6c-.3.2-.5.5-.5.9v1.4h-1.5v-1.4a2 2 0 0 1 .8-1.6l1.2-.8a1 1 0 0 0 .4-.8c0-.6-.4-1-1-1s-1 .4-1 1H9.5a2.5 2.5 0 1 1 5 0c0 .8-.3 1.4-.9 1.7z"/>
+                </svg>
+                <h1 class="logo-text">CodeGen</h1>
+            </a>
+            
+            <button type="reset"></button><button class="mobile-menu-btn" id="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <ul class="nav-links" id="nav-links">
+                <li><a href="#" class="nav-link active" data-page="generator">Generator</a></li>
+                <li><a href="#" class="nav-link" data-page="features">Features</a></li>
+                <li><a href="#" class="nav-link" data-page="examples">Examples</a></li>
+                <li><a href="#" class="nav-link" data-page="contact">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <!-- Generator Page -->
+        <div class="page active" id="generator-page">
+            <div class="hero">
+                <h1>AI-Powered Code Generator</h1>
+                <p>Transform your ideas into functional code instantly with our advanced AI technology</p>
+            </div>
+            
+            <div class="generator-box">
+                <div class="input-group">
+                    <label for="prompt">Enter your coding request:</label>
+                    <textarea id="prompt" placeholder="e.g., Create a Python function to calculate factorial"></textarea>
+                </div>
+                
+                <div class="input-group">
+                    <label for="language">Select programming language:</label>
+                    <select id="language">
+                        <option value="">Any language</option>
+                        <option value="Python">Python</option>
+                        <option value="JavaScript">JavaScript</option>
+                        <option value="HTML">HTML</option>
+                        <option value="CSS">CSS</option>
+                        <option value="Java">Java</option>
+                        <option value="C++">C++</option>
+                        <option value="PHP">PHP</option>
+                        <option value="Ruby">Ruby</option>
+                        <option value="Swift">Swift</option>
+                        <option value="Go">Go</option>
+                        <option value="Rust">Rust</option>
+                    </select>
+                </div>
+                
+                <div class="button-group">
+                    <button id="generate-btn">Generate Code</button>
+                    <button id="clear-btn" class="secondary">Clear</button>
+                    <button id="history-btn" class="secondary">History</button>
+                    <button id="settings-btn" class="secondary">Settings</button>
+                </div>
+                
+                <div class="settings-panel" id="settings-panel">
+                    <h3>Settings</h3>
+                    <label>
+                        <input type="checkbox" id="auto-copy" checked>
+                        Auto-copy generated code
+                    </label>
+                    <label>
+                        <input type="checkbox" id="save-history" checked>
+                        Save generation history
+                    </label>
+                </div>
+                
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Generating your code...</p>
+                </div>
+                
+                <div class="result-box" id="result-box" style="display: none;">
+                    <button class="copy-btn" id="copy-btn">Copy</button>
+                    <h3>Generated Code:</h3>
+                    <div class="result-content" id="result-content"></div>
+                </div>
+                
+                <div class="examples">
+                    <h3>Try these examples:</h3>
+                    <div class="example-buttons">
+                        <button class="example-btn">Python Fibonacci sequence</button>
+                        <button class="example-btn">JavaScript form validation</button>
+                        <button class="example-btn">HTML/CSS navbar</button>
+                        <button class="example-btn">React counter component</button>
+                        <button class="example-btn">SQL query for user data</button>
+                    </div>
+                </div>
+                
+                <div class="history-panel" id="history-panel">
+                    <h3>Generation History</h3>
+                    <div id="history-list"></div>
+                    <div class="clear-history" id="clear-history">Clear History</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Features Page -->
+        <div class="page" id="features-page">
+            <div class="hero">
+                <h1>Powerful Features</h1>
+                <p>Discover what makes our AI Code Generator stand out from the rest</p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3>Instant Code Generation</h3>
+                    <p>Get high-quality code generated in seconds with our advanced AI technology.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h3>Multiple Languages</h3>
+                    <p>Supports all major programming languages including Python, JavaScript, Java, and more.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <h3>History Tracking</h3>
+                    <p>Your generated code is saved so you can easily access it later.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>Responsive Design</h3>
+                    <p>Works perfectly on all devices from desktop to mobile.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-clipboard"></i>
+                    </div>
+                    <h3>One-Click Copy</h3>
+                    <p>Copy your generated code to clipboard with a single click.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <h3>Customizable Settings</h3>
+                    <p>Adjust settings to match your preferences and workflow.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Examples Page -->
+        <div class="page" id="examples-page">
+            <div class="hero">
+                <h1>Code Examples</h1>
+                <p>Explore what our AI Code Generator can create for you</p>
+            </div>
+            
+            <div class="generator-box">
+                <h2>Common Use Cases</h2>
+                
+                <div class="examples" style="margin-top: 20px;">
+                    <h3>Python Examples</h3>
+                    <div class="example-buttons">
+                        <button class="example-btn">Web scraper</button>
+                        <button class="example-btn">Data analysis script</button>
+                        <button class="example-btn">Flask REST API</button>
+                        <button class="example-btn">Machine learning model</button>
+                    </div>
+                </div>
+                
+                <div class="examples">
+                    <h3>JavaScript Examples</h3>
+                    <div class="example-buttons">
+                        <button class="example-btn">Form validation</button>
+                        <button class="example-btn">AJAX request</button>
+                        <button class="example-btn">React component</button>
+                        <button class="example-btn">Node.js server</button>
+                    </div>
+                </div>
+                
+                <div class="examples">
+                    <h3>Web Development</h3>
+                    <div class="example-buttons">
+                        <button class="example-btn">Responsive navbar</button>
+                        <button class="example-btn">Login form</button>
+                        <button class="example-btn">Image gallery</button>
+                        <button class="example-btn">CSS animations</button>
+                    </div>
+                </div>
+                
+                <div class="examples">
+                    <h3>Database</h3>
+                    <div class="example-buttons">
+                        <button class="example-btn">SQL queries</button>
+                        <button class="example-btn">MongoDB operations</button>
+                        <button class="example-btn">Database connection</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Contact Page -->
+        <div class="page" id="contact-page">
+            <div class="hero">
+                <h1>Contact Us</h1>
+                <p>Have questions or feedback? We'd love to hear from you!</p>
+            </div>
+            
+            <div class="contact-form">
+                <form id="contact-form">
+                    <div class="input-group">
+                        <label for="name">Your Name</label>
+                        <input type="text" id="name" placeholder="Enter your name" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" placeholder="Enter your email" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="subject">Subject</label>
+                        <input type="text" id="subject" placeholder="What's this about?">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="message">Message</label>
+                        <textarea id="message" placeholder="Enter your message" required></textarea>
+                    </div>
+                    
+                    <button type="submit">Send Message</button>
+                </form>
+            </div>
+            
+            <div class="contact-info">
+                <div class="contact-card">
+                    <h3><i class="fas fa-envelope"></i> Email</h3>
+                    <p>amir57a6@gmail.com</p>
+                    <p></p>
+                </div>
+                
+              
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>Powered by Amir Shahzad| &copy; 2025 CodeGen AI. All rights reserved.</p>
+    </footer>
+    
+    <div class="notification" id="notification"></div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const generateBtn = document.getElementById('generate-btn');
+            const promptInput = document.getElementById('prompt');
+            const languageSelect = document.getElementById('language');
+            const loadingElement = document.getElementById('loading');
+            const resultBox = document.getElementById('result-box');
+            const resultContent = document.getElementById('result-content');
+            const copyBtn = document.getElementById('copy-btn');
+            const clearBtn = document.getElementById('clear-btn');
+            const historyBtn = document.getElementById('history-btn');
+            const settingsBtn = document.getElementById('settings-btn');
+            const historyPanel = document.getElementById('history-panel');
+            const historyList = document.getElementById('history-list');
+            const clearHistoryBtn = document.getElementById('clear-history');
+            const settingsPanel = document.getElementById('settings-panel');
+            const autoCopyCheckbox = document.getElementById('auto-copy');
+            const saveHistoryCheckbox = document.getElementById('save-history');
+            const notification = document.getElementById('notification');
+            const exampleButtons = document.querySelectorAll('.example-btn');
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const navLinks = document.getElementById('nav-links');
+            const contactForm = document.getElementById('contact-form');
+            const navLinksAll = document.querySelectorAll('.nav-link');
+            const pages = document.querySelectorAll('.page');
+            const logo = document.querySelector('.logo');
+            
+            // Your Gemini API key
+            const API_KEY = 'AIzaSyDocblrXsNq3wz9paciz6ZoGgkDo1tcyvE';
+            const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
+            
+            // Initialize history from localStorage
+            let generationHistory = JSON.parse(localStorage.getItem('codeGenerationHistory')) || [];
+            
+            // Set current page
+            let currentPage = 'generator';
+            
+            // Event Listeners
+            generateBtn.addEventListener('click', generateCode);
+            clearBtn.addEventListener('click', clearInputs);
+            copyBtn.addEventListener('click', copyToClipboard);
+            historyBtn.addEventListener('click', toggleHistoryPanel);
+            settingsBtn.addEventListener('click', toggleSettingsPanel);
+            clearHistoryBtn.addEventListener('click', clearHistory);
+            mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+            contactForm.addEventListener('submit', handleContactSubmit);
+            
+            // Navigation links
+            navLinksAll.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const page = this.dataset.page;
+                    showPage(page);
+                    closeMobileMenu();
+                });
+            });
+            
+            // Logo click
+            logo.addEventListener('click', function(e) {
+                e.preventDefault();
+                showPage(this.dataset.page);
+                closeMobileMenu();
+            });
+            
+            // Add event listeners to example buttons
+            exampleButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const exampleText = this.textContent;
+                    promptInput.value = exampleText;
+                    
+                    // Set language based on example
+                    if (exampleText.includes('Python')) {
+                        languageSelect.value = 'Python';
+                    } else if (exampleText.includes('JavaScript') || exampleText.includes('React')) {
+                        languageSelect.value = 'JavaScript';
+                    } else if (exampleText.includes('HTML') || exampleText.includes('CSS')) {
+                        languageSelect.value = 'HTML';
+                    } else if (exampleText.includes('SQL')) {
+                        languageSelect.value = 'SQL';
+                    }
+                    
+                    showNotification('Example loaded!', 'success');
+                });
+            });
+            
+            // Allow pressing Enter in the textarea to generate code
+            promptInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && e.ctrlKey) {
+                    generateCode();
+                }
+            });
+            
+            // Functions
+            async function generateCode() {
+                const prompt = promptInput.value.trim();
+                const language = languageSelect.value;
+                
+                if (!prompt) {
+                    showNotification('Please enter a coding request', 'error');
+                    return;
+                }
+                
+                // Show loading state
+                generateBtn.disabled = true;
+                loadingElement.style.display = 'block';
+                resultBox.style.display = 'none';
+                
+                try {
+                    // Construct the full prompt
+                    let fullPrompt = prompt;
+                    if (language) {
+                        fullPrompt = `Generate ${language} code for: ${prompt}. Please provide only the code with brief comments if needed, no additional explanations.`;
+                    } else {
+                        fullPrompt = `Generate code for: ${prompt}. Please provide only the code with brief comments if needed, no additional explanations.`;
+                    }
+                    
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            contents: [{
+                                parts: [{
+                                    text: fullPrompt
+                                }]
+                            }]
+                        })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`API request failed with status ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    // Extract the generated text
+                    let generatedText = '';
+                    if (data.candidates && data.candidates[0].content.parts) {
+                        generatedText = data.candidates[0].content.parts[0].text;
+                    } else {
+                        generatedText = "No code was generated. Please try again with a different prompt.";
+                    }
+                    
+                    // Display the result
+                    resultContent.textContent = generatedText;
+                    resultBox.style.display = 'block';
+                    
+                    // Auto-copy if enabled
+                    if (autoCopyCheckbox.checked) {
+                        copyToClipboard();
+                    }
+                    
+                    // Save to history if enabled
+                    if (saveHistoryCheckbox.checked) {
+                        saveToHistory(prompt, generatedText, language);
+                    }
+                    
+                    showNotification('Code generated successfully!', 'success');
+                    
+                } catch (error) {
+                    console.error('Error:', error);
+                    resultContent.textContent = `Error: ${error.message}`;
+                    resultBox.style.display = 'block';
+                    showNotification('Error generating code', 'error');
+                } finally {
+                    // Hide loading state
+                    generateBtn.disabled = false;
+                    loadingElement.style.display = 'none';
+                }
+            }
+            
+            function clearInputs() {
+                promptInput.value = '';
+                languageSelect.value = '';
+                resultBox.style.display = 'none';
+                showNotification('Inputs cleared', 'success');
+            }
+            
+            function copyToClipboard() {
+                const textToCopy = resultContent.textContent;
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    copyBtn.textContent = 'Copied!';
+                    copyBtn.classList.add('copied');
+                    setTimeout(() => {
+                        copyBtn.textContent = 'Copy';
+                        copyBtn.classList.remove('copied');
+                    }, 2000);
+                    showNotification('Code copied to clipboard!', 'success');
+                }).catch(err => {
+                    console.error('Failed to copy: ', err);
+                    showNotification('Failed to copy code', 'error');
+                });
+            }
+            
+            function showNotification(message, type) {
+                notification.textContent = message;
+                notification.className = `notification ${type} show`;
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+            
+            function saveToHistory(prompt, code, language) {
+                const historyItem = {
+                    prompt: prompt,
+                    code: code,
+                    language: language || 'Any',
+                    timestamp: new Date().toISOString()
+                };
+                
+                generationHistory.unshift(historyItem);
+                
+                // Keep only the last 20 items
+                if (generationHistory.length > 20) {
+                    generationHistory = generationHistory.slice(0, 20);
+                }
+                
+                localStorage.setItem('codeGenerationHistory', JSON.stringify(generationHistory));
+                updateHistoryList();
+            }
+            
+            function updateHistoryList() {
+                historyList.innerHTML = '';
+                
+                generationHistory.forEach((item, index) => {
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'history-item';
+                    
+                    const date = new Date(item.timestamp);
+                    const formattedDate = date.toLocaleString();
+                    
+                    historyItem.innerHTML = `
+                        <div class="prompt">${item.prompt}</div>
+                        <div class="language">Language: ${item.language}</div>
+                        <div class="date">${formattedDate}</div>
+                    `;
+                    
+                    historyItem.addEventListener('click', () => {
+                        promptInput.value = item.prompt;
+                        languageSelect.value = item.language === 'Any' ? '' : item.language;
+                        resultContent.textContent = item.code;
+                        resultBox.style.display = 'block';
+                        historyPanel.style.display = 'none';
+                        showNotification('History item loaded', 'success');
+                    });
+                    
+                    historyList.appendChild(historyItem);
+                });
+            }
+            
+            function toggleHistoryPanel() {
+                if (historyPanel.style.display === 'block') {
+                    historyPanel.style.display = 'none';
+                    historyBtn.classList.remove('active');
+                } else {
+                    updateHistoryList();
+                    historyPanel.style.display = 'block';
+                    settingsPanel.style.display = 'none';
+                    historyBtn.classList.add('active');
+                    settingsBtn.classList.remove('active');
+                }
+            }
+            
+            function toggleSettingsPanel() {
+                if (settingsPanel.style.display === 'block') {
+                    settingsPanel.style.display = 'none';
+                    settingsBtn.classList.remove('active');
+                } else {
+                    settingsPanel.style.display = 'block';
+                    historyPanel.style.display = 'none';
+                    settingsBtn.classList.add('active');
+                    historyBtn.classList.remove('active');
+                }
+            }
+            
+            function toggleMobileMenu() {
+                navLinks.classList.toggle('active');
+                mobileMenuBtn.innerHTML = navLinks.classList.contains('active') ? 
+                    '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
+            }
+            
+            function closeMobileMenu() {
+                navLinks.classList.remove('active');
+                mobileMenuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+            }
+            
+            function clearHistory() {
+                generationHistory = [];
+                localStorage.removeItem('codeGenerationHistory');
+                updateHistoryList();
+                showNotification('History cleared', 'success');
+            }
+            
+            function handleContactSubmit(e) {
+                e.preventDefault();
+                
+                // Get form values
+                const name = document.getElementById('name').value;
+                const email = document.getElementById('email').value;
+                const subject = document.getElementById('subject').value;
+                const message = document.getElementById('message').value;
+                
+                // Here you would typically send the form data to a server
+                // For this example, we'll just show a success message
+                showNotification('Thank you for your message! We\'ll get back to you soon.', 'success');
+                
+                // Reset the form
+                contactForm.reset();
+            }
+            
+            function showPage(page) {
+                // Hide all pages
+                pages.forEach(p => p.classList.remove('active'));
+                
+                // Show selected page
+                document.getElementById(`${page}-page`).classList.add('active');
+                
+                // Update active nav link
+                navLinksAll.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.dataset.page === page) {
+                        link.classList.add('active');
+                    }
+                });
+                
+                // Update current page
+                currentPage = page;
+            }
+            
+            // Initialize the app
+            updateHistoryList();
+            showPage('generator');
+        });
+    </script>
+</body>
+</html>
